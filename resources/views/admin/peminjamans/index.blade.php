@@ -1,59 +1,62 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Kelola Peminjaman') }}
-        </h2>
-    </x-slot>
-
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-
-                <div class="mb-6 flex justify-between items-center">
-                    <h3 class="text-lg font-medium text-gray-900">Daftar Aktivitas Peminjaman</h3>
-                    <a href="{{ route('admin.peminjamans.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
-                        + Catat Peminjaman Baru
-                    </a>
+                <div class="flex justify-between mb-6">
+                    <h3 class="font-bold text-gray-800 uppercase tracking-widest">Daftar Peminjaman</h3>
+                    <a href="{{ route('admin.peminjamans.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold">+ PINJAM ALAT</a>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 border">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">No</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Peminjam</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Alat</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jumlah</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach ($peminjamans as $p)
-                            <tr>
-                                <td class="px-6 py-4 text-sm text-gray-900">{{ $loop->iteration }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-900 font-bold">{{ $p->user->name }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-900">{{ $p->alat->nama_alat }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-900">{{ $p->jumlah_pinjam }}</td>
-                                <td class="px-6 py-4 text-sm">
-                                    <span class="px-2 py-1 rounded-full text-xs font-bold {{ $p->status == 'dipinjam' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' }}">
-                                        {{ ucfirst($p->status) }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-sm font-medium flex gap-2">
-                                    <a href="{{ route('admin.peminjamans.edit', $p->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                    <form action="{{ route('admin.peminjamans.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Hapus data ini?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
+                <table class="min-w-full border">
+                    <thead class="bg-gray-50 uppercase text-[10px] font-bold text-gray-500">
+                        <tr>
+                            <th class="px-6 py-3 border-b text-left">Peminjam</th>
+                            <th class="px-6 py-3 border-b text-left">Alat</th>
+                            <th class="px-6 py-3 border-b text-left">Jumlah</th>
+                            <th class="px-6 py-3 border-b text-left">Status</th>
+                            <th class="px-6 py-3 border-b text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-xs font-medium">
+                        @foreach ($peminjamans as $p)
+                        <tr>
+                            <td class="px-6 py-4 border-b">{{ $p->user->name }}</td>
+                            <td class="px-6 py-4 border-b">{{ $p->alat->nama_alat }}</td>
+                            <td class="px-6 py-4 border-b">{{ $p->jumlah }}</td>
+                            <td class="px-6 py-4 border-b">
+                                <span class="{{ $p->status == 'dipinjam' ? 'text-orange-500' : 'text-green-500' }} font-bold uppercase">
+                                    {{ $p->status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 border-b text-center">
+                                <form id="delete-form-{{ $p->id }}" action="{{ route('admin.peminjamans.destroy', $p->id) }}" method="POST" style="display:none;">
+                                    @csrf @method('DELETE')
+                                </form>
+                                <button onclick="confirmDelete({{ $p->id }})" class="text-red-500 font-bold uppercase hover:underline">Hapus</button>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmDelete(id) {
+            Swal.fire({
+                title: 'HAPUS DATA PINJAM?',
+                text: "Menghapus data ini akan mengembalikan stok alat!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'YA, HAPUS'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            })
+        }
+    </script>
 </x-app-layout>

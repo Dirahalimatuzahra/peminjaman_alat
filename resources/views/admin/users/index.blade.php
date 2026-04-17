@@ -7,54 +7,100 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-100">
+                <div class="p-8">
 
-                <div class="mb-6 flex justify-between items-center">
-                    <h3 class="text-lg font-medium text-gray-900">Daftar Pengguna Sistem</h3>
-                    <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
-                        + Tambah User Baru
-                    </a>
+                    {{-- Header Tabel --}}
+                    <div class="mb-8 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-md font-black text-gray-800 uppercase italic tracking-widest">Daftar Pengguna Sistem</h3>
+                            <p class="text-[9px] text-gray-400 mt-1 uppercase tracking-tighter font-bold">Manajemen akun admin, petugas, dan peminjam.</p>
+                        </div>
+                        <a href="{{ route('admin.users.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-6 rounded-xl text-[10px] uppercase tracking-widest shadow-lg shadow-blue-100 transition-all active:scale-95">
+                            + Tambah User
+                        </a>
+                    </div>
+
+                    {{-- Tabel --}}
+                    <div class="overflow-x-auto border border-gray-50 rounded-2xl">
+                        <table class="min-w-full divide-y divide-gray-100">
+                            <thead class="bg-gray-50/50">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">No</th>
+                                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nama</th>
+                                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Email</th>
+                                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Role</th>
+                                    <th class="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-50">
+                                @foreach ($users as $user)
+                                <tr class="hover:bg-gray-50/50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-gray-500">{{ $loop->iteration }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-xs font-black text-gray-800 uppercase tracking-tight">{{ $user->name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-600 font-medium">{{ $user->email }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-3 py-1 inline-flex text-[9px] leading-5 font-black rounded-lg uppercase tracking-widest
+                                            {{ $user->role == 'admin' ? 'bg-red-50 text-red-600' : ($user->role == 'petugas' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600') }}">
+                                            {{ $user->role }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        <div class="flex justify-center items-center space-x-6">
+                                            {{-- Tombol Edit --}}
+                                            <a href="{{ route('admin.users.edit', $user->id) }}" class="text-[10px] font-black text-indigo-600 hover:text-indigo-900 uppercase tracking-widest transition-colors">
+                                                Edit
+                                            </a>
+
+                                            {{-- Tombol Hapus dengan SweetAlert2 --}}
+                                            <form id="delete-form-{{ $user->id }}" action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" onclick="confirmDelete('{{ $user->id }}')" class="text-[10px] font-black text-red-500 hover:text-red-700 uppercase tracking-widest transition-colors">
+                                                    Hapus
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
-
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 border">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach ($users as $user)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $loop->iteration }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $user->name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $user->email }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                        {{ $user->role == 'admin' ? 'bg-red-100 text-red-800' : ($user->role == 'petugas' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800') }}">
-                                        {{ ucfirst($user->role) }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
-                                    <a href="{{ route('admin.users.edit', $user->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-
-                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
             </div>
         </div>
     </div>
+
+    {{-- Script JavaScript untuk Konfirmasi Hapus --}}
+    @push('scripts')
+    <script>
+        function confirmDelete(userId) {
+            Swal.fire({
+                title: 'HAPUS USER?',
+                text: "Data yang dihapus tidak dapat dikembalikan lagi.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#2563eb', // Biru senada tombol simpan
+                cancelButtonColor: '#ef4444', // Merah
+                confirmButtonText: 'YA, HAPUS',
+                cancelButtonText: 'BATAL',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-3xl shadow-2xl',
+                    title: 'font-black uppercase tracking-widest text-sm italic',
+                    htmlContainer: 'font-medium text-xs',
+                    confirmButton: 'rounded-xl px-6 py-3 font-black text-[10px] tracking-widest uppercase',
+                    cancelButton: 'rounded-xl px-6 py-3 font-black text-[10px] tracking-widest uppercase'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Eksekusi hapus jika klik OK
+                    document.getElementById('delete-form-' + userId).submit();
+                }
+            })
+        }
+    </script>
+    @endpush
 </x-app-layout>

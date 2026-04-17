@@ -48,16 +48,19 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Dashboard Admin
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
 
-    // CRUD Routes
+    // CRUD Routes Standar
     Route::resource('users', UserController::class);
     Route::resource('alats', AlatController::class);
     Route::resource('kategoris', KategoriController::class);
 
-    // Khusus Peminjaman: Saya tambahkan route untuk update status secara cepat
+    // Peminjaman
     Route::resource('peminjamans', PeminjamanController::class);
-    Route::patch('peminjamans/{peminjaman}/kembalikan', [PeminjamanController::class, 'kembalikan'])->name('peminjamans.kembalikan');
-
+    
+    // --- PERBAIKAN ROUTE PENGEMBALIAN ---
+    // Gunakan Resource untuk CRUD otomatis
     Route::resource('pengembalians', PengembalianController::class);
+    // Tambahkan route khusus untuk fungsi konfirmasi
+    Route::post('/pengembalians/konfirmasi', [PengembalianController::class, 'konfirmasi'])->name('pengembalians.konfirmasi');
 });
 
 /**
@@ -65,8 +68,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
  */
 Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')->group(function () {
     Route::get('/dashboard', [PetugasDashboard::class, 'index'])->name('dashboard');
-
-    // Petugas biasanya juga butuh akses CRUD Alat & Peminjaman
     Route::resource('alats', AlatController::class);
     Route::resource('peminjamans', PeminjamanController::class);
 });
@@ -76,10 +77,12 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
  */
 Route::middleware(['auth', 'role:peminjam'])->prefix('peminjam')->name('peminjam.')->group(function () {
     Route::get('/dashboard', [PeminjamDashboard::class, 'index'])->name('dashboard');
-    // Peminjam hanya bisa melihat daftar alat dan riwayat pinjamannya sendiri
     Route::get('/alats', [AlatController::class, 'index'])->name('alats.index');
 });
 
+/**
+ * PROFILE ROUTES
+ */
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

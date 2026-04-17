@@ -29,22 +29,27 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Kategori</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @foreach ($kategoris as $kategori)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $loop->iteration }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $kategori->nama_kategori }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
-                                    <a href="{{ route('admin.kategoris.edit', $kategori->id) }}" class="text-indigo-600 hover:text-indigo-900 text-sm font-semibold">Edit</a>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold uppercase">{{ $kategori->nama_kategori }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex justify-center gap-4">
+                                    <a href="{{ route('admin.kategoris.edit', $kategori->id) }}" class="text-indigo-600 hover:text-indigo-900 font-black text-[10px] uppercase tracking-widest">Edit</a>
 
-                                    <form action="{{ route('admin.kategoris.destroy', $kategori->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kategori ini?')">
+                                    {{-- Form Hapus (Tersembunyi) --}}
+                                    <form id="delete-form-{{ $kategori->id }}" action="{{ route('admin.kategoris.destroy', $kategori->id) }}" method="POST" style="display: none;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900 text-sm font-semibold">Hapus</button>
                                     </form>
+
+                                    {{-- Tombol Hapus dengan SweetAlert --}}
+                                    <button type="button" onclick="confirmDelete({{ $kategori->id }})" class="text-red-600 hover:text-red-900 font-black text-[10px] uppercase tracking-widest">
+                                        Hapus
+                                    </button>
                                 </td>
                             </tr>
                             @endforeach
@@ -57,8 +62,35 @@
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </div>
     </div>
+
+    {{-- Script untuk SweetAlert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmDelete(id) {
+            Swal.fire({
+                title: 'HAPUS KATEGORI?',
+                text: "Data ini akan dihapus secara permanen dari sistem!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6', // Warna biru untuk Ya
+                cancelButtonColor: '#d33',    // Warna merah untuk Batal
+                confirmButtonText: 'YA, HAPUS!',
+                cancelButtonText: 'BATAL',
+                reverseButtons: true,
+                customClass: {
+                    title: 'font-black italic tracking-widest',
+                    confirmButton: 'font-bold uppercase tracking-widest text-xs px-6 py-3 rounded-lg',
+                    cancelButton: 'font-bold uppercase tracking-widest text-xs px-6 py-3 rounded-lg'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Jalankan form submit jika user menekan tombol YA
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            })
+        }
+    </script>
 </x-app-layout>
