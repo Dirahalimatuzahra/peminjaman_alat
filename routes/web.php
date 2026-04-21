@@ -8,12 +8,15 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AlatController;
 use App\Http\Controllers\Admin\KategoriController;
-use App\Http\Controllers\Admin\PeminjamanController;
+use App\Http\Controllers\Admin\PeminjamanController as AdminPeminjaman;
 use App\Http\Controllers\Admin\PengembalianController;
 
-// Import Controller Role Lain
+// Import Controller Petugas
 use App\Http\Controllers\Petugas\DashboardController as PetugasDashboard;
+
+// Import Controller Peminjam (DISESUAIKAN DENGAN FOLDER KHUSUS PEMINJAM)
 use App\Http\Controllers\Peminjam\DashboardController as PeminjamDashboard;
+use App\Http\Controllers\Peminjam\PeminjamanController as PeminjamPinjamController; // Controller baru Anda
 
 Route::get('/', function () {
     return view('welcome');
@@ -45,21 +48,12 @@ Route::get('/dashboard', function () {
  * ROUTE GROUP ADMIN
  */
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Dashboard Admin
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
-
-    // CRUD Routes Standar
     Route::resource('users', UserController::class);
     Route::resource('alats', AlatController::class);
     Route::resource('kategoris', KategoriController::class);
-
-    // Peminjaman
-    Route::resource('peminjamans', PeminjamanController::class);
-    
-    // --- PERBAIKAN ROUTE PENGEMBALIAN ---
-    // Gunakan Resource untuk CRUD otomatis
+    Route::resource('peminjamans', AdminPeminjaman::class);
     Route::resource('pengembalians', PengembalianController::class);
-    // Tambahkan route khusus untuk fungsi konfirmasi
     Route::post('/pengembalians/konfirmasi', [PengembalianController::class, 'konfirmasi'])->name('pengembalians.konfirmasi');
 });
 
@@ -69,15 +63,28 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')->group(function () {
     Route::get('/dashboard', [PetugasDashboard::class, 'index'])->name('dashboard');
     Route::resource('alats', AlatController::class);
-    Route::resource('peminjamans', PeminjamanController::class);
+    Route::resource('peminjamans', AdminPeminjaman::class);
 });
 
 /**
- * ROUTE GROUP PEMINJAM
+ * ROUTE GROUP PEMINJAM (SUDAH DISINKRONKAN DENGAN CONTROLLER PEMINJAM)
  */
 Route::middleware(['auth', 'role:peminjam'])->prefix('peminjam')->name('peminjam.')->group(function () {
+    // Dashboard Utama Peminjam
     Route::get('/dashboard', [PeminjamDashboard::class, 'index'])->name('dashboard');
+    
+    // Daftar Alat untuk Peminjam (Menggunakan Controller Admin untuk Data Alat)
     Route::get('/alats', [AlatController::class, 'index'])->name('alats.index');
+    
+    // Peminjaman Khusus Peminjam (MENGGUNAKAN CONTROLLER DI FOLDER PEMINJAM)
+    // 1. Riwayat Pinjam (Jika belum ada view index, arahkan ke dashboard/create sesuai logika Controller)
+    Route::get('/peminjamans', [PeminjamPinjamController::class, 'index'])->name('peminjamans.index');
+    
+    // 2. Form Input Pinjam (Peminjam akan melihat file di resources/views/peminjam/create.blade.php)
+    Route::get('/peminjamans/create', [PeminjamPinjamController::class, 'create'])->name('peminjamans.create');
+    
+    // 3. Proses Simpan
+    Route::post('/peminjamans', [PeminjamPinjamController::class, 'store'])->name('peminjamans.store');
 });
 
 /**

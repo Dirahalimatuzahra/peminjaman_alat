@@ -7,90 +7,83 @@ use App\Models\Peminjaman;
 use App\Models\Alat;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PeminjamanController extends Controller
 {
     /**
-     * Menampilkan daftar peminjaman
+     * Menampilkan form peminjaman baru
+     */
+    public function create(Request $request)
+    {
+        // 1. Ambil ID Alat dari parameter URL
+        $alat_id = $request->query('alat_id');
+        
+        // Jika ID tidak ada, jangan lempar ke dashboard, tapi beri pesan error
+        if (!$alat_id) {
+            return redirect()->back()->with('error', 'Silakan pilih alat terlebih dahulu melalui menu Cari Alat.');
+        }
+
+        $selected_alat = Alat::findOrFail($alat_id);
+
+        if (Auth::user()->role === 'peminjam') {
+            // 2. Langsung arahkan ke file create.blade.php di folder peminjam
+            return view('peminjam.create', compact('selected_alat'));
+        }
+
+        $users = User::all();
+        $alats = Alat::where('stok', '>', 0)->get();
+        return view('admin.peminjamans.create', compact('users', 'alats', 'selected_alat'));
+    }
+
+    /**
+     * Menampilkan daftar peminjaman (Riwayat)
      */
     public function index()
     {
-        // Mengambil data peminjaman beserta relasi user dan alat
+        if (Auth::user()->role === 'peminjam') {
+            // Karena Anda BELUM punya file peminjam/index.blade.php
+            // Maka sementara dilempar ke dashboard.
+            return redirect()->route('peminjam.dashboard')
+                             ->with('info', 'Halaman Riwayat Pinjam belum tersedia.');
+        } 
+
         $peminjamans = Peminjaman::with(['user', 'alat'])->latest()->get();
         return view('admin.peminjamans.index', compact('peminjamans'));
     }
 
-    /**
-     * Menampilkan form peminjaman baru
-     */
-    public function create()
-    {
-        // Menyaring hanya user dengan role siswa (mengantisipasi huruf besar/kecil)
-        // Agar Admin dan Petugas tidak muncul di dropdown
-        $users = User::all();
-
-        // Jika variabel $users kosong, pastikan ada data siswa di tabel users kamu
-        if ($users->isEmpty()) {
-            // Opsional: ambil semua user jika filter 'siswa' tidak menemukan hasil
-            // $users = User::all(); 
-        }
-
-        // Hanya mengambil alat yang stoknya lebih dari 0
-        $alats = Alat::where('stok', '>', 0)->get();
-
-        return view('admin.peminjamans.create', compact('users', 'alats'));
-    }
-
-    /**
-     * Menyimpan data peminjaman ke database
-     */
     public function store(Request $request)
     {
+        if (Auth::user()->role === 'peminjam') {
+            $request->merge(['user_id' => Auth::id()]);
+        }
+
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'alat_id' => 'required|exists:alats,id',
             'jumlah' => 'required|integer|min:1',
             'tanggal_pinjam' => 'required|date',
+            'tanggal_kembali' => 'required|date|after_or_equal:tanggal_pinjam',
         ]);
 
         $alat = Alat::findOrFail($request->alat_id);
 
-        // Validasi ketersediaan stok
         if ($alat->stok < $request->jumlah) {
             return back()->with('error', 'Maaf, stok alat tidak mencukupi!');
         }
 
-        // Simpan data peminjaman
         Peminjaman::create([
             'user_id' => $request->user_id,
             'alat_id' => $request->alat_id,
             'jumlah' => $request->jumlah,
             'tanggal_pinjam' => $request->tanggal_pinjam,
-            'status' => 'dipinjam', // Status default saat meminjam
+            'tanggal_kembali' => $request->tanggal_kembali,
+            'status' => 'dipinjam',
         ]);
 
-        // Kurangi stok alat secara otomatis
         $alat->decrement('stok', $request->jumlah);
 
-        return redirect()->route('admin.peminjamans.index')
-                         ->with('success', 'Data peminjaman berhasil disimpan dan stok alat diperbarui!');
-    }
-
-    /**
-     * Menghapus data peminjaman
-     */
-    public function destroy($id)
-    {
-        $peminjaman = Peminjaman::findOrFail($id);
-
-        // Jika data dihapus saat status masih 'dipinjam', kembalikan stok alatnya
-        if ($peminjaman->status == 'dipinjam') {
-            $peminjaman->alat->increment('stok', $peminjaman->jumlah);
-        }
-
-        $peminjaman->delete();
-
-        return redirect()->route('admin.peminjamans.index')
-                         ->with('success', 'Data peminjaman berhasil dihapus!');
+        // Jika berhasil simpan, baru boleh ke dashboard
+        return redirect()->route('peminjam.dashboard')->with('success', 'Peminjaman berhasil!');
     }
 }

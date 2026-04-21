@@ -40,14 +40,12 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex justify-center gap-4">
                                     <a href="{{ route('admin.kategoris.edit', $kategori->id) }}" class="text-indigo-600 hover:text-indigo-900 font-black text-[10px] uppercase tracking-widest">Edit</a>
 
-                                    {{-- Form Hapus (Tersembunyi) --}}
                                     <form id="delete-form-{{ $kategori->id }}" action="{{ route('admin.kategoris.destroy', $kategori->id) }}" method="POST" style="display: none;">
                                         @csrf
                                         @method('DELETE')
                                     </form>
 
-                                    {{-- Tombol Hapus dengan SweetAlert --}}
-                                    <button type="button" onclick="confirmDelete({{ $kategori->id }})" class="text-red-600 hover:text-red-900 font-black text-[10px] uppercase tracking-widest">
+                                    <button type="button" onclick="confirmDelete({{ $kategori->id }}, '{{ $kategori->nama_kategori }}')" class="text-red-600 hover:text-red-900 font-black text-[10px] uppercase tracking-widest">
                                         Hapus
                                     </button>
                                 </td>
@@ -69,25 +67,26 @@
     {{-- Script untuk SweetAlert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function confirmDelete(id) {
+        function confirmDelete(id, name) {
             Swal.fire({
                 title: 'HAPUS KATEGORI?',
-                text: "Data ini akan dihapus secara permanen dari sistem!",
+                text: "Hapus kategori " + name.toUpperCase() + "? Data akan hilang permanen.",
                 icon: 'warning',
+                width: '380px', // Lebar diperkecil agar tidak terlalu besar
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6', // Warna biru untuk Ya
-                cancelButtonColor: '#d33',    // Warna merah untuk Batal
-                confirmButtonText: 'YA, HAPUS!',
+                confirmButtonColor: '#d33', 
+                cancelButtonColor: '#3085d6',    
+                confirmButtonText: 'YA, HAPUS',
                 cancelButtonText: 'BATAL',
                 reverseButtons: true,
                 customClass: {
-                    title: 'font-black italic tracking-widest',
-                    confirmButton: 'font-bold uppercase tracking-widest text-xs px-6 py-3 rounded-lg',
-                    cancelButton: 'font-bold uppercase tracking-widest text-xs px-6 py-3 rounded-lg'
+                    title: 'text-lg font-black italic tracking-widest', // Font judul lebih proporsional
+                    htmlContainer: 'text-[11px] font-medium py-2', // Teks bantuan lebih kecil
+                    confirmButton: 'text-[10px] py-2 px-6 font-bold uppercase tracking-widest rounded-md', // Tombol ramping
+                    cancelButton: 'text-[10px] py-2 px-6 font-bold uppercase tracking-widest rounded-md'
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Jalankan form submit jika user menekan tombol YA
                     document.getElementById('delete-form-' + id).submit();
                 }
             })

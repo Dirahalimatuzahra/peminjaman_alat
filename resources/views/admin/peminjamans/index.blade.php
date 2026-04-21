@@ -4,7 +4,6 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <div class="flex justify-between mb-6">
                     <h3 class="font-bold text-gray-800 uppercase tracking-widest">Daftar Peminjaman</h3>
-                    <a href="{{ route('admin.peminjamans.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold">+ PINJAM ALAT</a>
                 </div>
 
                 <table class="min-w-full border">
