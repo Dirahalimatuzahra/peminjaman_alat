@@ -8,7 +8,7 @@
     <div class="py-12">
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-8">
-                <form action="{{ route('peminjam.peminjamans.store') }}" method="POST">
+                <form action="{{ route('peminjam.alats.store') }}" method="POST">
                     @csrf
                     
                     {{-- Detail Alat --}}

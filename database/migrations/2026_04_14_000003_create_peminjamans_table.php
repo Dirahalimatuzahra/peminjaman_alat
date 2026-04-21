@@ -13,9 +13,13 @@ return new class extends Migration
     {
         Schema::create('peminjamans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained(); // Peminjam
-            $table->foreignId('alat_id')->constrained(); // Alat yang dipinjam
-            $table->foreignId('petugas_id')->constrained('users'); // Petugas yang input
+            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('alat_id')->constrained('alats');
+            $table->foreignId('petugas_id')->nullable()->constrained('users');
+            
+            // --- TAMBAHKAN BARIS INI ---
+            $table->integer('jumlah'); 
+            
             $table->date('tanggal_pinjam');
             $table->date('tanggal_kembali')->nullable();
             $table->enum('status', ['pending', 'dipinjam', 'kembali', 'ditolak'])->default('pending');

@@ -60,7 +60,7 @@
                                     {{-- LOGIKA AKSI BERDASARKAN ROLE --}}
                                     @if(Auth::user()->role === 'peminjam')
                                         @if($alat->stok > 0)
-                                            <a href="{{ route('peminjam.peminjamans.index') }}" class="text-indigo-600 hover:text-indigo-900 font-black uppercase text-xs tracking-tighter">
+                                            <a href="{{ route('admin.alats.index') }}" class="text-indigo-600 hover:text-indigo-900 font-black uppercase text-xs tracking-tighter">
                                                 Pinjam Alat
                                             </a>
                                         @else

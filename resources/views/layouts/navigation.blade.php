@@ -1,7 +1,6 @@
 <nav x-data="{ open: false }" class="bg-white border-r border-gray-100 min-h-screen flex flex-col w-64 shadow-sm">
     {{-- Logo Section --}}
     <div class="p-6 flex items-center justify-center border-b border-gray-50 mb-4">
-        {{-- Menggunakan route('dashboard') agar redirect otomatis sesuai role --}}
         <a href="{{ route('dashboard') }}">
             <x-application-logo class="block h-12 w-auto fill-current text-indigo-600" />
         </a>
@@ -45,6 +44,19 @@
             </a>
         @endif
 
+        {{-- MENU KHUSUS PETUGAS --}}
+        @if(Auth::user()->role === 'petugas')
+            <a href="{{ route('petugas.peminjamans.index') }}" 
+               class="flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all {{ request()->routeIs('petugas.peminjamans.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700' }}">
+                <span class="mr-3 text-lg">📋</span> {{ __('Konfirmasi Pinjam') }}
+            </a>
+
+            <a href="{{ route('petugas.dashboard') }}" 
+               class="flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all {{ request()->routeIs('petugas.alats.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700' }}">
+                <span class="mr-3 text-lg">🔧</span> {{ __('Data Alat') }}
+            </a>
+        @endif
+
         {{-- MENU KHUSUS PEMINJAM --}}
         @if(Auth::user()->role === 'peminjam')
             <a href="{{ route('peminjam.alats.index') }}" 
@@ -52,18 +64,18 @@
                 <span class="mr-3 text-lg">🔍</span> {{ __('Cari Alat') }}
             </a>
 
-            <a href="{{ route('peminjam.peminjamans.index') }}" 
-               class="flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all {{ request()->routeIs('peminjam.peminjamans.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700' }}">
+            <a href="{{ route('peminjam.peminjaman.index') }}" 
+               class="flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all {{ request()->routeIs('peminjam.peminjaman.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700' }}">
                 <span class="mr-3 text-lg">📜</span> {{ __('Riwayat Pinjam') }}
             </a>
         @endif
     </div>
 
-    {{-- User Profile & Logout --}}
+    {{-- User Profile & Logout Section --}}
     <div class="p-4 border-t border-gray-100 bg-gray-50/50">
         <div class="px-4 py-3 bg-white rounded-2xl shadow-sm border border-gray-100">
             <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Logged in as</p>
-            <p class="text-xs font-bold text-indigo-600 truncate uppercase">{{ Auth::user()->name }}</p>
+            <p class="text-xs font-bold text-indigo-600 truncate uppercase">{{ Auth::user()->name }} ({{ Auth::user()->role }})</p>
             
             <div class="mt-3 pt-3 border-t border-gray-100 flex flex-col gap-2">
                 <a href="{{ route('profile.edit') }}" class="text-[10px] font-bold text-gray-500 hover:text-indigo-600 uppercase tracking-widest transition">Edit Profil</a>
@@ -80,7 +92,7 @@
     </div>
 </nav>
 
-{{-- Script SweetAlert2 untuk Konfirmasi Logout --}}
+{{-- Script SweetAlert2 tetap sama --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     function confirmLogout() {

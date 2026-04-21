@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Peminjam; // Pastikan namespace-nya Peminjam
+namespace App\Http\Controllers\Peminjam; // Perhatikan Namespacenya
 
 use App\Http\Controllers\Controller;
 use App\Models\Peminjaman;
@@ -10,23 +10,33 @@ use Illuminate\Support\Facades\Auth;
 
 class PeminjamanController extends Controller
 {
-    /**
-     * Menampilkan form pinjam (Halaman yang tadinya error/ke lempar)
-     */
-    public function create(Request $request)
+    public function index()
     {
-        $alat_id = $request->query('alat_id');
-        
-        // Cari alat berdasarkan ID yang dikirim dari tombol "Pinjam Alat"
-        $selected_alat = Alat::findOrFail($alat_id);
+        // Mengambil data pinjaman milik user yang sedang login
+        $peminjamans = Peminjaman::with('alat')
+                        ->where('user_id', auth()->id())
+                        ->latest()
+                        ->get();
 
-        // Langsung panggil view di folder peminjam
-        return view('peminjam.create', compact('selected_alat'));
+        // Arahkan ke folder peminjam/peminjaman/index
+        return view('peminjam.peminjaman.index', compact('peminjamans'));
     }
 
-    /**
-     * Proses simpan data peminjaman
-     */
+    public function create(Request $request)
+    {
+        // Ambil ID Alat dari URL (?alat_id=...)
+        $alat_id = $request->query('alat_id');
+        
+        if (!$alat_id) {
+            return redirect()->route('peminjam.alats.index')->with('error', 'Pilih alat dulu.');
+        }
+
+        $selected_alat = Alat::findOrFail($alat_id);
+
+        // Langsung panggil view milik peminjam
+        return view('peminjam.alats.create', compact('selected_alat'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -38,24 +48,22 @@ class PeminjamanController extends Controller
 
         $alat = Alat::findOrFail($request->alat_id);
 
-        // Validasi stok
         if ($alat->stok < $request->jumlah) {
             return back()->with('error', 'Stok tidak mencukupi!');
         }
 
-        // Simpan data
         Peminjaman::create([
-            'user_id' => Auth::id(), // Otomatis pakai ID user yang login (Nunung)
-            'alat_id' => $request->alat_id,
-            'jumlah' => $request->jumlah,
-            'tanggal_pinjam' => $request->tanggal_pinjam,
-            'tanggal_kembali' => $request->tanggal_kembali,
-            'status' => 'dipinjam',
+        'user_id' => Auth::id(),
+        'alat_id' => $request->alat_id,
+        'jumlah' => $request->jumlah,
+        'tanggal_pinjam' => $request->tanggal_pinjam,
+        'tanggal_kembali' => $request->tanggal_kembali,
+        'status' => 'pending', // <--- UBAH JADI PENDING
+        'petugas_id' => null,   // Biarkan null karena belum dikonfirmasi petugas
         ]);
 
-        // Kurangi stok alat
         $alat->decrement('stok', $request->jumlah);
 
-        return redirect()->route('peminjam.dashboard')->with('success', 'Peminjaman berhasil diajukan!');
+        return redirect()->route('peminjam.dashboard')->with('success', 'Berhasil meminjam alat!');
     }
 }
