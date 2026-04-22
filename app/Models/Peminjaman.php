@@ -13,8 +13,7 @@ class Peminjaman extends Model
 
     protected $fillable = [
     'user_id',
-    'alat_id',
-    'petugas_id', // Pastikan ini ada
+    'buku_id',
     'jumlah',
     'tanggal_pinjam',
     'tanggal_kembali',
@@ -30,11 +29,11 @@ class Peminjaman extends Model
     }
 
     /**
-     * Relasi ke Alat yang dipinjam
+     * Relasi ke Buku yang dipinjam
      */
-    public function alat()
+    public function buku() 
     {
-        return $this->belongsTo(Alat::class);
+        return $this->belongsTo(Buku::class);
     }
 
     /**

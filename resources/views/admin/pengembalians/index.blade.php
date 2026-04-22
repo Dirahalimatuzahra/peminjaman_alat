@@ -29,7 +29,7 @@
                                 <tr class="bg-gray-50 border-b border-gray-100">
                                     <th class="py-3 px-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">No</th>
                                     <th class="py-3 px-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Peminjam</th>
-                                    <th class="py-3 px-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Alat</th>
+                                    <th class="py-3 px-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Buku</th>
                                     <th class="py-3 px-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Tgl Pinjam</th>
                                     <th class="py-3 px-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Aksi</th>
                                 </tr>
@@ -39,7 +39,7 @@
                                 <tr class="hover:bg-gray-50/50 transition-colors">
                                     <td class="py-4 px-6 text-sm text-gray-600 text-center">{{ $index + 1 }}</td>
                                     <td class="py-4 px-6 text-sm text-gray-600 uppercase font-medium">{{ $data->user->name }}</td>
-                                    <td class="py-4 px-6 text-sm text-gray-600 uppercase font-medium">{{ $data->alat->nama_alat }}</td>
+                                    <td class="py-4 px-6 text-sm text-gray-600 uppercase font-medium">{{ $data->buku->nama_buku }}</td>
                                     <td class="py-4 px-6 text-sm text-gray-500 font-medium">
                                         {{ \Carbon\Carbon::parse($data->tanggal_pinjam)->format('d/m/Y') }}
                                     </td>
@@ -49,7 +49,7 @@
                                             <form action="{{ route('admin.pengembalians.konfirmasi') }}" method="POST">
                                                 @csrf
                                                 <input type="hidden" name="peminjaman_id" value="{{ $data->id }}">
-                                                <button type="submit" onclick="return confirm('Alat sudah kembali?')" 
+                                                <button type="submit" onclick="return confirm('Buku sudah kembali?')" 
                                                     class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-[9px] uppercase tracking-wider shadow-sm transition-all active:scale-95">
                                                     Konfirmasi
                                                 </button>
@@ -74,7 +74,7 @@
                                 @empty
                                 <tr>
                                     <td colspan="5" class="py-16 text-center text-gray-400 text-[11px] font-bold uppercase tracking-[0.2em] italic">
-                                        Tidak ada alat yang sedang dipinjam.
+                                        Tidak ada buku yang sedang dipinjam.
                                     </td>
                                 </tr>
                                 @endforelse

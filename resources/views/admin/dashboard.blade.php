@@ -14,8 +14,8 @@
                     <div class="text-3xl font-black">{{ $total_user }}</div>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm rounded-2xl p-6 border-b-4 border-green-500">
-                    <div class="text-gray-500 font-bold text-xs uppercase">Total Alat</div>
-                    <div class="text-3xl font-black">{{ $total_alat }}</div>
+                    <div class="text-gray-500 font-bold text-xs uppercase">Total Buku</div>
+                    <div class="text-3xl font-black">{{ $total_buku }}</div>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm rounded-2xl p-6 border-b-4 border-orange-500">
                     <div class="text-gray-500 font-bold text-xs uppercase">Peminjaman Aktif</div>
@@ -43,7 +43,7 @@
                                 <div class="relative flex space-x-3">
                                     <span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center text-white text-xs">A</span>
                                     <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
-                                        <p class="text-sm text-gray-500">Stok alat <span class="font-medium text-gray-900">Proyektor Epson</span> diperbarui</p>
+                                        <p class="text-sm text-gray-500">Stok Buku <span class="font-medium text-gray-900">Proyektor Epson</span> diperbarui</p>
                                         <div class="whitespace-nowrap text-right text-xs text-gray-400">10 mnt lalu</div>
                                     </div>
                                 </div>

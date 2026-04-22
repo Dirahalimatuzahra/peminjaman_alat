@@ -1,21 +1,21 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Formulir Peminjaman Alat') }}
+            {{ __('Formulir Peminjaman Buku') }}
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-8">
-                <form action="{{ route('peminjam.alats.store') }}" method="POST">
+                <form action="{{ route('peminjam.bukus.store') }}" method="POST">
                     @csrf
                     
-                    {{-- Detail Alat --}}
+                    {{-- Detail Buku --}}
                     <div class="mb-6 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-                        <label class="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Alat yang dipilih</label>
-                        <p class="text-lg font-bold text-indigo-900 uppercase">{{ $selected_alat->nama_alat }}</p>
-                        <input type="hidden" name="alat_id" value="{{ $selected_alat->id }}">
+                        <label class="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Buku yang dipilih</label>
+                        <p class="text-lg font-bold text-indigo-900 uppercase">{{ $selected_buku->nama_buku }}</p>
+                        <input type="hidden" name="buku_id" value="{{ $selected_buku->id }}">
                     </div>
 
                     {{-- Nama Peminjam (Otomatis) --}}
@@ -28,7 +28,7 @@
                         {{-- Jumlah Pinjam --}}
                         <div class="mb-4">
                             <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Jumlah</label>
-                            <input type="number" name="jumlah" min="1" max="{{ $selected_alat->stok }}" class="w-full border-gray-200 rounded-lg text-sm" required placeholder="Stok: {{ $selected_alat->stok }}">
+                            <input type="number" name="jumlah" min="1" max="{{ $selected_buku->stok }}" class="w-full border-gray-200 rounded-lg text-sm" required placeholder="Stok: {{ $selected_buku->stok }}">
                         </div>
 
                         {{-- Tanggal Pinjam --}}
@@ -61,7 +61,7 @@
                         <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">
                             Konfirmasi Pinjaman
                         </button>
-                        <a href="{{ route('peminjam.alats.index') }}" class="px-6 py-3 border border-gray-200 text-gray-500 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-gray-50 transition">
+                        <a href="{{ route('peminjam.bukus.index') }}" class="px-6 py-3 border border-gray-200 text-gray-500 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-gray-50 transition">
                             Batal
                         </a>
                     </div>

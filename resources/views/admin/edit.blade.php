@@ -34,8 +34,7 @@
                             <label class="block text-sm font-medium text-gray-700 uppercase tracking-widest text-[10px] font-bold mb-2">Role / Peran</label>
                             <select name="role" required class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                                 <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="petugas" {{ $user->role == 'petugas' ? 'selected' : '' }}>Petugas</option>
-                                <option value="peminjam" {{ $user->role == 'peminjam' ? 'selected' : '' }}>Peminjam (Siswa)</option>
+                                <option value="peminjam" {{ $user->role == 'peminjam' ? 'selected' : '' }}>User</option>
                             </select>
                         </div>
                     </div>

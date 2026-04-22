@@ -9,15 +9,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('peminjamans', function (Blueprint $table) {
-            // Mengubah kolom petugas_id menjadi nullable
-            $table->unsignedBigInteger('petugas_id')->nullable()->change();
+            // Mengubah kolom admin_id menjadi nullable
+            $table->unsignedBigInteger('admin_id')->nullable()->change();
         });
     }
 
     public function down(): void
     {
         Schema::table('peminjamans', function (Blueprint $table) {
-            $table->unsignedBigInteger('petugas_id')->nullable(false)->change();
+            $table->unsignedBigInteger('admin_id')->nullable(false)->change();
         });
     }
 };

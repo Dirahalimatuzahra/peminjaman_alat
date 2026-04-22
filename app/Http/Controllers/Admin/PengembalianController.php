@@ -14,8 +14,8 @@ class PengembalianController extends Controller
      */
     public function index()
     {
-        // Hanya menampilkan alat yang statusnya masih 'dipinjam'
-        $pengembalians = Peminjaman::with(['user', 'alat'])
+        // Hanya menampilkan buku yang statusnya masih 'dipinjam'
+        $pengembalians = Peminjaman::with(['user', 'buku'])
             ->where('status', 'dipinjam')
             ->latest()
             ->get();
@@ -24,7 +24,7 @@ class PengembalianController extends Controller
     }
 
     /**
-     * Fungsi untuk konfirmasi pengembalian alat secara cepat.
+     * Fungsi untuk konfirmasi pengembalian buku secara cepat.
      */
     public function konfirmasi(Request $request)
     {
@@ -40,11 +40,11 @@ class PengembalianController extends Controller
             'status' => 'kembali'
         ]);
 
-        // Mengembalikan stok alat secara otomatis
-        $peminjaman->alat->increment('stok');
+        // Mengembalikan stok buku secara otomatis
+        $peminjaman->buku->increment('stok');
 
         return redirect()->route('admin.pengembalians.index')
-            ->with('success', 'Alat telah berhasil dikembalikan!');
+            ->with('success', 'Buku telah berhasil dikembalikan!');
     }
 
     /**

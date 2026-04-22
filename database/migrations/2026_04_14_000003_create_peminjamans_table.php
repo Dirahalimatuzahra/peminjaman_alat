@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('peminjamans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('alat_id')->constrained('alats');
-            $table->foreignId('petugas_id')->nullable()->constrained('users');
+            $table->foreignId('buku_id')->constrained('bukus');
+            $table->foreignId('admin_id')->nullable()->constrained('users');
             
             // --- TAMBAHKAN BARIS INI ---
             $table->integer('jumlah'); 

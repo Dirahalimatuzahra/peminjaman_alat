@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Peminjam;
 
 use App\Http\Controllers\Controller;
-use App\Models\Alat;
+use App\Models\Buku;
 use App\Models\Peminjaman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,13 +20,13 @@ class DashboardController extends Controller
             ->where('status', 'dipinjam')
             ->count();
 
-        // Data tambahan untuk informasi alat yang tersedia di sekolah
-        $alatTersedia = Alat::where('stok', '>', 0)->count();
+        // Data tambahan untuk informasi buku yang tersedia di sekolah
+        $bukuTersedia = Buku::where('stok', '>', 0)->count();
 
         return view('peminjam.dashboard', compact(
             'totalPinjam', 
             'sedangDipinjam', 
-            'alatTersedia'
+            'bukuTersedia'
         ));
     }
 }

@@ -10,7 +10,7 @@
                     <thead class="bg-gray-50 uppercase text-[10px] font-bold text-gray-500">
                         <tr>
                             <th class="px-6 py-3 border-b text-left">Peminjam</th>
-                            <th class="px-6 py-3 border-b text-left">Alat</th>
+                            <th class="px-6 py-3 border-b text-left">Buku</th>
                             <th class="px-6 py-3 border-b text-left">Jumlah</th>
                             <th class="px-6 py-3 border-b text-left">Status</th>
                             <th class="px-6 py-3 border-b text-center">Aksi</th>
@@ -20,7 +20,7 @@
                         @foreach ($peminjamans as $p)
                         <tr>
                             <td class="px-6 py-4 border-b">{{ $p->user->name }}</td>
-                            <td class="px-6 py-4 border-b">{{ $p->alat->nama_alat }}</td>
+                            <td class="px-6 py-4 border-b">{{ $p->buku?->nama_buku ?? 'Buku Tidak Ditemukan' }}</td>
                             <td class="px-6 py-4 border-b">{{ $p->jumlah }}</td>
                             <td class="px-6 py-4 border-b">
                                 <span class="{{ $p->status == 'dipinjam' ? 'text-orange-500' : 'text-green-500' }} font-bold uppercase">
@@ -28,9 +28,10 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 border-b text-center">
-                                <form id="delete-form-{{ $p->id }}" action="{{ route('admin.peminjamans.destroy', $p->id) }}" method="POST" style="display:none;">
-                                    @csrf @method('DELETE')
-                                </form>
+                                {{-- Hapus huruf 's' pada admin.peminjamans agar sesuai dengan web.php --}}
+                            <form id="delete-form-{{ $p->id }}" action="{{ route('admin.peminjaman.destroy', $p->id) }}" method="POST" style="display:none;">
+                                @csrf @method('DELETE')
+                            </form>
                                 <button onclick="confirmDelete({{ $p->id }})" class="text-red-500 font-bold uppercase hover:underline">Hapus</button>
                             </td>
                         </tr>
@@ -46,7 +47,7 @@
         function confirmDelete(id) {
             Swal.fire({
                 title: 'HAPUS DATA PINJAM?',
-                text: "Menghapus data ini akan mengembalikan stok alat!",
+                text: "Menghapus data ini akan mengembalikan stok buku!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',

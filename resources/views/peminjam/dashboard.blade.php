@@ -13,7 +13,7 @@
                     Selamat Datang, {{ Auth::user()->name }}!
                 </h3>
                 <p class="text-sm text-gray-500 mt-1 uppercase font-bold tracking-widest">
-                    Pantau peminjaman alat sekolah kamu di sini.
+                    Pantau peminjaman buku sekolah kamu di sini.
                 </p>
             </div>
 
@@ -37,8 +37,8 @@
 
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-50 flex items-center justify-between">
                     <div>
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Alat Tersedia</p>
-                        <h4 class="text-3xl font-black text-green-600 mt-1">{{ $alatTersedia }}</h4>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Buku Tersedia</p>
+                        <h4 class="text-3xl font-black text-green-600 mt-1">{{ $bukuTersedia }}</h4>
                     </div>
                     <div class="bg-green-50 text-green-500 p-4 rounded-xl text-2xl">🔧</div>
                 </div>
@@ -47,11 +47,11 @@
             {{-- Informasi Cepat --}}
             <div class="mt-8 bg-indigo-600 rounded-2xl p-8 text-white flex flex-col md:flex-row items-center justify-between shadow-lg shadow-indigo-100">
                 <div class="mb-4 md:mb-0">
-                    <h4 class="text-lg font-black uppercase tracking-widest">Butuh alat praktik?</h4>
-                    <p class="text-indigo-100 text-sm mt-1">Lihat stok alat yang tersedia sekarang dan hubungi petugas di laboratorium.</p>
+                    <h4 class="text-lg font-black uppercase tracking-widest">Butuh buku praktik?</h4>
+                    <p class="text-indigo-100 text-sm mt-1">Lihat stok buku yang tersedia sekarang dan hubungi petugas di perpustakaan.</p>
                 </div>
-                <a href="{{ route('peminjam.alats.index') }}" class="bg-white text-indigo-600 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-50 transition-all">
-                    Cari Alat Sekarang
+                <a href="{{ route('peminjam.bukus.index') }}" class="bg-white text-indigo-600 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-50 transition-all">
+                    Cari Buku Sekarang
                 </a>
             </div>
         </div>

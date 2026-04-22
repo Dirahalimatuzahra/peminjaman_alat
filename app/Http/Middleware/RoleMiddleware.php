@@ -25,9 +25,8 @@ class RoleMiddleware
         }
 
         // 2. Cek apakah role user sesuai dengan parameter yang diminta di route
-        if ($request->user()->role !== $role) {
-            // Jika tidak sesuai, hentikan dengan error 403 (Forbidden)
-            abort(403, 'Maaf, Anda tidak memiliki akses ke halaman ' . $role . '.');
+        if (auth()->user()->role !== $role) {
+        abort(403, 'MAAF, ANDA TIDAK MEMILIKI AKSES KE HALAMAN INI.');
         }
 
         return $next($request);

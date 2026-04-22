@@ -48,7 +48,6 @@
                                 class="w-full border-gray-200 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm font-bold">
                                 <option value="" disabled selected>-- Pilih Peran --</option>
                                 <option value="admin">Administrator</option>
-                                <option value="petugas">Petugas Perpus</option>
                                 <option value="peminjam">Siswa (Peminjam)</option>
                             </select>
                             @error('role') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Alat;
+use App\Models\Buku;
 use Illuminate\Http\Request;
 
-class AlatController extends Controller
+class BukuController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class AlatController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Alat $alat)
+    public function show(Buku $buku)
     {
         //
     }
@@ -42,7 +42,7 @@ class AlatController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Alat $alat)
+    public function edit(Buku $buku)
     {
         //
     }
@@ -50,7 +50,7 @@ class AlatController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Alat $alat)
+    public function update(Request $request, Buku $buku)
     {
         //
     }
@@ -58,7 +58,7 @@ class AlatController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Alat $alat)
+    public function destroy(Buku $buku)
     {
         //
     }

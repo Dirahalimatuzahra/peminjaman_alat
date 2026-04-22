@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('alats', function (Blueprint $table) {
+        Schema::table('bukus', function (Blueprint $table) {
             // nullable() digunakan agar data lama tidak error saat kolom ini ditambah
             // after('stok') meletakkan kolom ini tepat setelah kolom stok di database
             $table->text('deskripsi')->nullable()->after('stok');
@@ -23,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('alats', function (Blueprint $table) {
+        Schema::table('bukus', function (Blueprint $table) {
             // Tambahkan ini agar kolom dihapus saat rollback
             $table->dropColumn('deskripsi');
         });
