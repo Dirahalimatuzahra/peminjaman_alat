@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
+// --- IMPORT CONTROLLER BAWAAN ---
 use App\Http\Controllers\ProfileController;
 
 // --- IMPORT CONTROLLER ADMIN ---
@@ -9,6 +11,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BukuController as AdminBukuController;
 use App\Http\Controllers\Admin\PeminjamanController as AdminPeminjaman; 
 use App\Http\Controllers\Admin\PengembalianController;
+use App\Http\Controllers\Admin\AdminProfileController as AdminProfileController;
 
 // --- IMPORT CONTROLLER USER (PEMINJAM) ---
 use App\Http\Controllers\Peminjam\DashboardController as UserDashboard;
@@ -30,25 +33,30 @@ Route::get('/dashboard', function () {
         return redirect()->route('admin.dashboard');
     }
     
-    // Perbaikan: Harus diarahkan ke 'peminjam.dashboard' agar sesuai dengan grup di bawah
     return redirect()->route('peminjam.dashboard');
 })->middleware(['auth'])->name('dashboard');
 
 /**
  * ROUTE GROUP ADMIN
+ * Menangani semua tugas Admin: Kelola Anggota, CRUD Buku, Transaksi, dan Profil.
  */
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+    
+    // Kelola & Cari Pengguna (Gunakan resource atau route manual untuk pencarian)
+    Route::get('/users/search', [UserController::class, 'search'])->name('users.search');
     Route::resource('users', UserController::class);
+    
+    // Resource lainnya tetap sama
     Route::resource('bukus', AdminBukuController::class);
     Route::resource('peminjaman', AdminPeminjaman::class); 
-    Route::resource('pengembalians', PengembalianController::class);
 });
 
 /**
  * ROUTE GROUP USER (PEMINJAM)
+ * Menangani tugas User: Daftar, Login, Peminjaman, dan Pencarian Buku.
  */
-// Nama grup diatur menjadi 'peminjam.' agar sesuai dengan struktur view dan controller Anda
 Route::middleware(['auth', 'role:peminjam'])->prefix('user')->name('peminjam.')->group(function () {
     Route::get('/dashboard', [UserDashboard::class, 'index'])->name('dashboard');
     Route::get('/bukus', [UserBukuController::class, 'index'])->name('bukus.index');
@@ -56,7 +64,8 @@ Route::middleware(['auth', 'role:peminjam'])->prefix('user')->name('peminjam.')-
 });
 
 /**
- * PROFILE ROUTES
+ * DEFAULT PROFILE ROUTES (Laravel Breeze)
+ * Tetap dipertahankan untuk kebutuhan profil dasar atau jika role lain membutuhkannya.
  */
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -2,19 +2,36 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Buku extends Model
 {
-    // Pastikan nama tabel benar
-    protected $table = 'bukus';
+    use HasFactory;
 
-    // Sesuaikan dengan kolom yang ada di database
     protected $fillable = [
+        'kategori_id', // Tambahkan ini agar bisa menyimpan relasi kategori
         'nama_buku', 
         'stok', 
         'deskripsi', 
-        'gambar', // Pastikan ini ada
-        'kategori_id'
+        'gambar', 
     ];
+
+    /**
+     * Relasi ke model Kategori.
+     * Satu buku termasuk dalam satu kategori (Many to One).
+     */
+    public function kategori()
+    {
+        return $this->belongsTo(Kategori::class, 'kategori_id');
+    }
+
+    /**
+     * Relasi ke model Peminjaman.
+     * Satu buku bisa dipinjam berkali-kali.
+     */
+    public function peminjamans()
+    {
+        return $this->hasMany(Peminjaman::class);
+    }
 }

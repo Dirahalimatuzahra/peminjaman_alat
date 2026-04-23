@@ -24,17 +24,17 @@ class PeminjamanController extends Controller
 
     public function create(Request $request)
     {
-        // Ambil ID Buku dari URL (?buku_id=...)
+        // Mengambil id dari query string: /peminjaman/create?buku_id=1
         $buku_id = $request->query('buku_id');
         
         if (!$buku_id) {
             return redirect()->route('peminjam.bukus.index')->with('error', 'Pilih buku dulu.');
         }
 
-        $selected_buku = Buku::findOrFail($buku_id);
+        // Gunakan nama variabel $buku agar sesuai dengan file Blade Anda
+        $buku = Buku::findOrFail($buku_id);
 
-        // Langsung panggil view milik peminjam
-        return view('peminjam.bukus.create', compact('selected_buku'));
+        return view('peminjam.peminjaman.create', compact('buku'));
     }
 
     public function store(Request $request)
@@ -42,28 +42,30 @@ class PeminjamanController extends Controller
         $request->validate([
             'buku_id' => 'required|exists:bukus,id',
             'jumlah' => 'required|integer|min:1',
-            'tanggal_pinjam' => 'required|date',
-            'tanggal_kembali' => 'required|date|after_or_equal:tanggal_pinjam',
+            'tanggal_pinjam' => 'required|date|after_or_equal:today',
+            'tanggal_kembali' => 'required|date|after:tanggal_pinjam',
+            'keterangan' => 'required|string|min:5', // Alasan meminjam
         ]);
 
         $buku = Buku::findOrFail($request->buku_id);
 
         if ($buku->stok < $request->jumlah) {
-            return back()->with('error', 'Stok tidak mencukupi!');
+            return back()->with('error', 'Stok buku tidak mencukupi!');
         }
 
         Peminjaman::create([
-        'user_id' => Auth::id(),
-        'buku_id' => $request->buku_id,
-        'jumlah' => $request->jumlah,
-        'tanggal_pinjam' => $request->tanggal_pinjam,
-        'tanggal_kembali' => $request->tanggal_kembali,
-        'status' => 'pending', // <--- UBAH JADI PENDING
-        'petugas_id' => null,   // Biarkan null karena belum dikonfirmasi petugas
+            'user_id' => auth()->id(),
+            'buku_id' => $request->buku_id,
+            'jumlah' => $request->jumlah,
+            'tanggal_pinjam' => $request->tanggal_pinjam,
+            'tanggal_kembali' => $request->tanggal_kembali,
+            'keterangan' => $request->keterangan,
+            'status' => 'pending',
         ]);
 
-        $buku->decrement('stok', $request->jumlah);
+        // Opsional: stok dikurangi setelah admin setuju, 
+        // tapi kalau mau dikurangi sekarang pakai: $buku->decrement('stok', $request->jumlah);
 
-        return redirect()->route('peminjam.dashboard')->with('success', 'Berhasil meminjam buku!');
+        return redirect()->route('peminjam.bukus.index')->with('success', 'Pengajuan peminjaman berhasil dikirim!');
     }
 }

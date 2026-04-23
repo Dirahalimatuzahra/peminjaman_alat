@@ -13,8 +13,12 @@ return new class extends Migration
     {
         Schema::create('bukus', function (Blueprint $table) {
             $table->id();
+            // Pastikan baris ini ada DI ATAS kolom nama_buku
+            $table->foreignId('kategori_id')->constrained('kategoris')->onDelete('cascade');
             $table->string('nama_buku');
             $table->integer('stok');
+            $table->text('deskripsi')->nullable();
+            $table->string('gambar')->nullable();
             $table->timestamps();
         });
     }

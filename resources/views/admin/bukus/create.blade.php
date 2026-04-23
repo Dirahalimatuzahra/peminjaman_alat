@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight italic uppercase tracking-tighter">
             {{ __('Tambah Buku Baru') }}
         </h2>
     </x-slot>
@@ -16,7 +16,18 @@
                         <div class="mt-3 border-b border-gray-50"></div>
                     </div>
 
-                    {{-- TAMBAHAN: enctype="multipart/form-data" wajib ada untuk upload file --}}
+                    {{-- TAMPILKAN ERROR JIKA ADA --}}
+                    @if ($errors->any())
+                        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">
+                            <p class="font-black uppercase text-[10px] tracking-widest">Gagal Menyimpan:</p>
+                            <ul class="mt-2 list-disc list-inside text-[9px] font-bold uppercase">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <form action="{{ route('admin.bukus.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
@@ -24,34 +35,44 @@
                             {{-- Nama Buku --}}
                             <div class="flex flex-col">
                                 <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Nama Buku</label>
-                                <input type="text" name="nama_buku" value="{{ old('nama_buku') }}" placeholder="CONTOH: PROYEKTOR EPSON" required
+                                <input type="text" name="nama_buku" value="{{ old('nama_buku') }}" placeholder="CONTOH: BUKU IPS KELAS 9" required
                                     class="w-full border-gray-200 bg-gray-50/30 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 font-bold text-xs uppercase p-3 placeholder:opacity-30">
-                                @error('nama_buku') <span class="text-red-500 text-[8px] font-bold mt-1 uppercase">{{ $message }}</span> @enderror
                             </div>
 
+                            {{-- Kategori (TAMBAHAN WAJIB) --}}
+                            <div class="flex flex-col">
+                                <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Kategori Alat/Buku</label>
+                                <select name="kategori_id" required class="w-full border-gray-200 bg-gray-50/30 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 font-bold text-xs p-3">
+                                    <option value="">-- PILIH KATEGORI --</option>
+                                    @foreach($kategoris as $kategori)
+                                        <option value="{{ $kategori->id }}" {{ old('kategori_id') == $kategori->id ? 'selected' : '' }}>
+                                            {{ strtoupper($kategori->nama_kategori) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                             {{-- Stok --}}
                             <div class="flex flex-col">
                                 <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Jumlah Stok</label>
                                 <input type="number" name="stok" value="{{ old('stok') }}" placeholder="0" required
                                     class="w-full border-gray-200 bg-gray-50/30 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 font-bold text-xs p-3 placeholder:opacity-30">
-                                @error('stok') <span class="text-red-500 text-[8px] font-bold mt-1 uppercase">{{ $message }}</span> @enderror
                             </div>
-                        </div>
 
-                        {{-- Input Gambar (Tambahan Baru) --}}
-                        <div class="mt-6 flex flex-col">
-                            <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Cover Buku / Foto Alat</label>
-                            <input type="file" name="gambar" accept="image/*"
-                                class="w-full border-gray-200 bg-gray-50/30 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 font-bold text-xs p-2 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all">
-                            <p class="text-[8px] text-gray-400 mt-1 uppercase tracking-tighter">* FORMAT: JPG, PNG, JPEG (MAX: 2MB)</p>
-                            @error('gambar') <span class="text-red-500 text-[8px] font-bold mt-1 uppercase">{{ $message }}</span> @enderror
+                            {{-- Gambar --}}
+                            <div class="flex flex-col">
+                                <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Cover Buku / Foto Alat</label>
+                                <input type="file" name="gambar" accept="image/*"
+                                    class="w-full border-gray-200 bg-gray-50/30 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 font-bold text-xs p-2 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all">
+                            </div>
                         </div>
 
                         {{-- Deskripsi --}}
                         <div class="mt-6 flex flex-col">
                             <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Deskripsi / Spesifikasi (Opsional)</label>
                             <textarea name="deskripsi" rows="3" class="w-full border-gray-200 bg-gray-50/30 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 font-bold text-xs p-3 placeholder:opacity-30" placeholder="MASUKKAN DETAIL ALAT...">{{ old('deskripsi') }}</textarea>
-                            @error('deskripsi') <span class="text-red-500 text-[8px] font-bold mt-1 uppercase">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- Footer Buttons --}}

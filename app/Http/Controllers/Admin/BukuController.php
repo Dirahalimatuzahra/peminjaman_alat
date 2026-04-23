@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Buku;
+use App\Models\Kategori; // Tambahkan ini agar bisa memanggil model Kategori
 use Illuminate\Http\Request;
 
 class BukuController extends Controller
@@ -14,88 +15,35 @@ class BukuController extends Controller
         return view('admin.bukus.index', compact('bukus'));
     }
 
+    // PASTIKAN HANYA ADA SATU FUNGSI CREATE
     public function create()
     {
-        return view('admin.bukus.create');
+        // Ambil semua data kategori dari database untuk dikirim ke form
+        $kategoris = Kategori::all(); 
+        
+        // Kirim variabel $kategoris ke file blade
+        return view('admin.bukus.create', compact('kategoris'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_buku' => 'required|string|max:255',
-            'stok'      => 'required|integer|min:0',
-            'deskripsi' => 'nullable|string',
-            'gambar'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        $validated = $request->validate([
+            'nama_buku'   => 'required|string|max:255',
+            'kategori_id' => 'required|exists:kategoris,id',
+            'stok'        => 'required|integer|min:0',
+            'deskripsi'   => 'nullable|string',
+            'gambar'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        try {
-            $data = $request->only(['nama_buku', 'stok', 'deskripsi']);
-
-            if ($request->hasFile('gambar')) {
-                $file = $request->file('gambar');
-                $nama_file = time() . "_" . $file->getClientOriginalName();
-                $file->move(public_path('storage/bukus'), $nama_file);
-                $data['gambar'] = $nama_file;
-            }
-
-            Buku::create($data);
-            return redirect()->route('admin.bukus.index')->with('success', 'Buku Berhasil Disimpan!');
-        } catch (\Exception $e) {
-            return back()->withInput()->withErrors(['error' => 'Gagal menyimpan: ' . $e->getMessage()]);
+        if ($request->hasFile('gambar')) {
+            $file = $request->file('gambar');
+            $nama_file = time() . "_" . $file->getClientOriginalName();
+            $file->move(public_path('storage/bukus'), $nama_file);
+            $validated['gambar'] = $nama_file;
         }
-    }
 
-    public function show(string $id)
-    {
-        $buku = Buku::findOrFail($id);
-        return view('admin.bukus.show', compact('buku'));
-    }
+        Buku::create($validated);
 
-    public function edit(string $id)
-    {
-        $buku = Buku::findOrFail($id);
-        return view('admin.bukus.edit', compact('buku'));
-    }
-
-    public function update(Request $request, string $id)
-    {
-        $buku = Buku::findOrFail($id);
-
-        $request->validate([
-            'nama_buku' => 'required|string|max:255',
-            'stok'      => 'required|integer|min:0',
-            'deskripsi' => 'nullable|string',
-            'gambar'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
-
-        try {
-            $data = $request->only(['nama_buku', 'stok', 'deskripsi']);
-
-            if ($request->hasFile('gambar')) {
-                if ($buku->gambar && file_exists(public_path('storage/bukus/' . $buku->gambar))) {
-                    unlink(public_path('storage/bukus/' . $buku->gambar));
-                }
-
-                $file = $request->file('gambar');
-                $nama_file = time() . "_" . $file->getClientOriginalName();
-                $file->move(public_path('storage/bukus'), $nama_file);
-                $data['gambar'] = $nama_file;
-            }
-
-            $buku->update($data);
-            return redirect()->route('admin.bukus.index')->with('success', 'Data buku berhasil diperbarui.');
-        } catch (\Exception $e) {
-            return back()->withInput()->withErrors(['error' => 'Gagal memperbarui: ' . $e->getMessage()]);
-        }
-    }
-
-    public function destroy(string $id)
-    {
-        $buku = Buku::findOrFail($id);
-        if ($buku->gambar && file_exists(public_path('storage/bukus/' . $buku->gambar))) {
-            unlink(public_path('storage/bukus/' . $buku->gambar));
-        }
-        $buku->delete();
-        return redirect()->route('admin.bukus.index')->with('success', 'Buku berhasil dihapus.');
+        return redirect()->route('admin.bukus.index')->with('success', 'Buku berhasil ditambahkan!');
     }
 }

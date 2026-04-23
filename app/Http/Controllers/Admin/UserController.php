@@ -3,42 +3,42 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User; // Penting: Import Model User
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    /**
-     * Menampilkan daftar user (Read)
-     */
-    public function index()
+    // Tampilkan Daftar Anggota (Tugas: CRUD Kelola Anggota)
+    public function index(Request $request)
     {
-        // Mengambil semua data user dari database
-        $users = \App\Models\User::all();
+        $query = $request->input('search');
+        
+        // Mencari pengguna berdasarkan nama atau email
+        $users = \App\Models\User::when($query, function ($q) use ($query) {
+            return $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('email', 'like', "%{$query}%");
+        })
+        ->where('role', '!=', 'admin') // Opsional: Hanya mencari user non-admin
+        ->paginate(10);
 
-        // Pastikan variabel $users ini dikirim ke view
         return view('admin.users.index', compact('users'));
     }
 
-    /**
-     * Menampilkan form tambah user (Create)
-     */
+    // Form Tambah Anggota/Petugas
     public function create()
     {
         return view('admin.users.create');
     }
 
-    /**
-     * Menyimpan data user baru ke database (Store)
-     */
+    // Simpan Anggota Baru
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:admin,petugas,peminjam',
+            'role' => 'required|in:peminjam,petugas',
         ]);
 
         User::create([
@@ -48,53 +48,13 @@ class UserController extends Controller
             'role' => $request->role,
         ]);
 
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan.');
+        return redirect()->route('admin.users.index')->with('success', 'Anggota berhasil ditambahkan!');
     }
 
-    /**
-     * Menampilkan form edit user (Edit)
-     */
-    public function edit(string $id)
+    // Hapus Anggota
+    public function destroy(User $user)
     {
-        $user = User::findOrFail($id);
-        return view('admin.users.edit', compact('user'));
-    }
-
-    /**
-     * Memperbarui data user di database (Update)
-     */
-    public function update(Request $request, string $id)
-    {
-        $user = User::findOrFail($id);
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-            'role' => 'required|in:admin,petugas,peminjam',
-        ]);
-
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->role = $request->role;
-
-        // Update password jika diisi
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
-        }
-
-        $user->save();
-
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil diperbarui.');
-    }
-
-    /**
-     * Menghapus user dari database (Delete)
-     */
-    public function destroy(string $id)
-    {
-        $user = User::findOrFail($id);
         $user->delete();
-
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil dihapus.');
+        return redirect()->route('admin.users.index')->with('success', 'Anggota berhasil dihapus!');
     }
 }
