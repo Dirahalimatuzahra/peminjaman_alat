@@ -12,7 +12,6 @@ class PeminjamanController extends Controller
 {
     public function index()
     {
-        // Admin melihat semua data peminjaman
         $peminjamans = Peminjaman::with(['user', 'buku'])->latest()->get();
         return view('admin.peminjamans.index', compact('peminjamans'));
     }
@@ -27,24 +26,39 @@ class PeminjamanController extends Controller
         return view('admin.peminjamans.create', compact('users', 'bukus', 'selected_buku'));
     }
 
-    public function updateStatus(Request $request, $id)
-{
-    $peminjaman = Peminjaman::findOrFail($id);
-    
-    // Logika untuk mengubah status
-    if ($request->status == 'dipinjam') {
-        $peminjaman->status = 'dipinjam';
-        $peminjaman->save();
-        return back()->with('success', 'Peminjaman telah disetujui.');
-    } elseif ($request->status == 'ditolak') {
-        // Jika ditolak, kembalikan stok buku yang sebelumnya berkurang
-        $peminjaman->buku->increment('stok', $peminjaman->jumlah);
-        $peminjaman->status = 'ditolak';
-        $peminjaman->save();
-        return back()->with('success', 'Peminjaman telah ditolak.');
+    // Ubah nama menjadi 'update' agar sesuai dengan route default atau yang Anda panggil di Blade
+    public function update(Request $request, $id)
+    {
+        $peminjaman = Peminjaman::findOrFail($id);
+        
+        if ($request->status == 'disetujui') {
+            $peminjaman->status = 'disetujui';
+            // Stok biasanya dikurangi saat pengajuan disetujui jika belum dikurangi di awal
+            $peminjaman->buku->decrement('stok', $peminjaman->jumlah); 
+            $peminjaman->save();
+            return back()->with('success', 'Peminjaman telah disetujui.');
+        } elseif ($request->status == 'ditolak') {
+            $peminjaman->status = 'ditolak';
+            $peminjaman->save();
+            return back()->with('success', 'Peminjaman telah ditolak.');
+        }
+
+        return back();
     }
 
-    return back();
-}
-    // Logika store admin tetap ada jika admin ingin menginputkan pinjaman untuk siswa
+    // Tambahkan fungsi destroy untuk menghapus data
+    public function destroy($id)
+    {
+        $peminjaman = Peminjaman::findOrFail($id);
+
+        // Jika data yang dihapus masih berstatus 'disetujui' atau 'pending', 
+        // kembalikan stok buku sebelum dihapus
+        if ($peminjaman->status == 'disetujui' || $peminjaman->status == 'pending') {
+            $peminjaman->buku->increment('stok', $peminjaman->jumlah);
+        }
+
+        $peminjaman->delete();
+
+        return redirect()->back()->with('success', 'Data peminjaman berhasil dihapus.');
+    }
 }

@@ -23,15 +23,40 @@
                             <td class="px-6 py-4 border-b">{{ $p->buku?->nama_buku ?? 'Buku Tidak Ditemukan' }}</td>
                             <td class="px-6 py-4 border-b">{{ $p->jumlah }}</td>
                             <td class="px-6 py-4 border-b">
-                                <span class="{{ $p->status == 'dipinjam' ? 'text-orange-500' : 'text-green-500' }} font-bold uppercase">
-                                    {{ $p->status }}
-                                </span>
+                                {{-- Ganti $peminjaman menjadi $p agar sesuai dengan loop @foreach --}}
+                                @if($p->status == 'pending')
+                                    <div class="flex gap-2">
+                                        {{-- Tombol Setujui --}}
+                                        <form action="{{ route('admin.peminjaman.update', $p->id) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="disetujui">
+                                            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-wider transition-all">
+                                                Setujui
+                                            </button>
+                                        </form>
+
+                                        {{-- Tombol Tolak --}}
+                                        <form action="{{ route('admin.peminjaman.update', $p->id) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="ditolak">
+                                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-wider transition-all">
+                                                Tolak
+                                            </button>
+                                        </form>
+                                    </div>
+                                @else
+                                    {{-- Tampilan Label Status jika sudah diproses --}}
+                                    <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest {{ $p->status == 'disetujui' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600' }}">
+                                        {{ $p->status == 'disetujui' ? 'Dipinjam' : 'Ditolak' }}
+                                    </span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 border-b text-center">
-                                {{-- Hapus huruf 's' pada admin.peminjamans agar sesuai dengan web.php --}}
-                            <form id="delete-form-{{ $p->id }}" action="{{ route('admin.peminjaman.destroy', $p->id) }}" method="POST" style="display:none;">
-                                @csrf @method('DELETE')
-                            </form>
+                                <form id="delete-form-{{ $p->id }}" action="{{ route('admin.peminjaman.destroy', $p->id) }}" method="POST" style="display:none;">
+                                    @csrf @method('DELETE')
+                                </form>
                                 <button onclick="confirmDelete({{ $p->id }})" class="text-red-500 font-bold uppercase hover:underline">Hapus</button>
                             </td>
                         </tr>
@@ -50,8 +75,11 @@
                 text: "Menghapus data ini akan mengembalikan stok buku!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                confirmButtonText: 'YA, HAPUS'
+                confirmButtonColor: '#4f46e5',
+                cancelButtonColor: '#ef4444',
+                confirmButtonText: 'YA, HAPUS',
+                cancelButtonText: 'BATAL',
+                borderRadius: '1rem'
             }).then((result) => {
                 if (result.isConfirmed) {
                     document.getElementById('delete-form-' + id).submit();

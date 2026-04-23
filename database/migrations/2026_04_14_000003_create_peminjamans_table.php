@@ -16,22 +16,17 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('buku_id')->constrained('bukus');
             $table->foreignId('admin_id')->nullable()->constrained('users');
-            
-            // --- TAMBAHKAN BARIS INI ---
             $table->integer('jumlah'); 
-            
             $table->date('tanggal_pinjam');
             $table->date('tanggal_kembali')->nullable();
-            $table->enum('status', ['pending', 'dipinjam', 'kembali', 'ditolak'])->default('pending');
+            // Pastikan 'disetujui' dan 'ditolak' sudah ada di sini
+            $table->enum('status', ['pending', 'disetujui', 'dipinjam', 'kembali', 'ditolak'])->default('pending');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('peminjamen');
+        Schema::dropIfExists('peminjamans'); // Pastikan 'peminjamans', bukan 'peminjamen'
     }
 };
