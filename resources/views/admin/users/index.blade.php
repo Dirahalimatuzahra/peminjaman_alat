@@ -10,15 +10,30 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-100">
                 <div class="p-8">
 
-                    {{-- Header Tabel --}}
-                    <div class="mb-8 flex justify-between items-center">
+                    {{-- Header Tabel & Fitur Pencarian --}}
+                    <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
                             <h3 class="text-md font-black text-gray-800 uppercase italic tracking-widest">Daftar Pengguna Sistem</h3>
                             <p class="text-[9px] text-gray-400 mt-1 uppercase tracking-tighter font-bold">Manajemen akun admin, petugas, dan peminjam.</p>
                         </div>
-                        <a href="{{ route('admin.users.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-6 rounded-xl text-[10px] uppercase tracking-widest shadow-lg shadow-blue-100 transition-all active:scale-95">
-                            + Tambah User
-                        </a>
+                        
+                        <div class="flex items-center gap-3 w-full md:w-auto">
+                            {{-- PERBAIKAN: Input Pencarian Baru --}}
+                            <form action="{{ route('admin.users.index') }}" method="GET" class="relative group">
+                                <input type="text" name="search" value="{{ request('search') }}" 
+                                    placeholder="CARI NAMA / EMAIL..." 
+                                    class="w-full md:w-64 border-gray-100 bg-gray-50/50 rounded-xl shadow-sm focus:border-blue-500 focus:ring-blue-500 font-bold text-[10px] p-3 uppercase placeholder:text-gray-300 transition-all">
+                                <button type="submit" class="absolute right-3 top-2.5 text-gray-300 group-hover:text-blue-600 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </button>
+                            </form>
+
+                            <a href="{{ route('admin.users.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-6 rounded-xl text-[10px] uppercase tracking-widest shadow-lg shadow-blue-100 transition-all active:scale-95 whitespace-nowrap">
+                                + Tambah User
+                            </a>
+                        </div>
                     </div>
 
                     {{-- Tabel --}}
@@ -34,8 +49,9 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-50">
-                                @foreach ($users as $user)
+                                @forelse ($users as $user)
                                 <tr class="hover:bg-gray-50/50 transition-colors">
+                                    {{-- Gunakan firstItem() + index jika pakai pagination agar nomor tetap urut --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-gray-500">{{ $loop->iteration }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-xs font-black text-gray-800 uppercase tracking-tight">{{ $user->name }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-600 font-medium">{{ $user->email }}</td>
@@ -47,12 +63,10 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         <div class="flex justify-center items-center space-x-6">
-                                            {{-- Tombol Edit --}}
                                             <a href="{{ route('admin.users.edit', $user->id) }}" class="text-[10px] font-black text-indigo-600 hover:text-indigo-900 uppercase tracking-widest transition-colors">
                                                 Edit
                                             </a>
 
-                                            {{-- Tombol Hapus dengan SweetAlert2 --}}
                                             <form id="delete-form-{{ $user->id }}" action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline">
                                                 @csrf
                                                 @method('DELETE')
@@ -63,9 +77,20 @@
                                         </div>
                                     </td>
                                 </tr>
-                                @endforeach
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="px-6 py-12 text-center">
+                                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">User tidak ditemukan.</p>
+                                    </td>
+                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
+                    </div>
+
+                    {{-- PAGINATION (Tambahkan ini agar halaman bisa ganti-ganti) --}}
+                    <div class="mt-6">
+                        {{ $users->appends(['search' => request('search')])->links() }}
                     </div>
 
                 </div>
@@ -82,8 +107,8 @@
                 text: "Data yang dihapus tidak dapat dikembalikan lagi.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#2563eb', // Biru senada tombol simpan
-                cancelButtonColor: '#ef4444', // Merah
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#ef4444',
                 confirmButtonText: 'YA, HAPUS',
                 cancelButtonText: 'BATAL',
                 reverseButtons: true,
@@ -96,7 +121,6 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Eksekusi hapus jika klik OK
                     document.getElementById('delete-form-' + userId).submit();
                 }
             })

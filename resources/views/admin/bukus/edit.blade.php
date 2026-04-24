@@ -15,7 +15,7 @@
                     <div class="mt-3 border-b border-gray-50"></div>
                 </div>
 
-                {{-- PERBAIKAN 1: Tambahkan enctype wajib untuk upload file --}}
+                {{-- Pastikan enctype="multipart/form-data" ada agar file bisa terkirim --}}
                 <form action="{{ route('admin.bukus.update', $buku->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
@@ -38,44 +38,47 @@
                         </div>
                     </div>
 
-                    {{-- PERBAIKAN 2: Bagian Upload Foto dengan Preview --}}
-                    <div class="mt-6 flex flex-col md:flex-row items-start md:items-center gap-6">
-                        <div class="w-full flex-col">
+                    {{-- Baris Upload & Preview Foto --}}
+                    <div class="mt-6 flex flex-col md:flex-row items-start gap-6">
+                        <div class="flex-1 w-full flex flex-col">
                             <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Cover Buku / Foto Alat (Opsional)</label>
-                            <input type="file" name="gambar" accept="image/*"
+                            
+                            {{-- PERBAIKAN: name diubah ke "foto" agar sinkron dengan Controller --}}
+                            <input type="file" name="foto" accept="image/*"
                                 class="w-full border-gray-200 bg-gray-50/30 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold text-xs p-2.5 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all">
+                            
                             <p class="text-[8px] text-gray-400 mt-1.5 uppercase tracking-tighter">* FORMAT: JPG, PNG (MAX: 2MB). Biarkan kosong jika tidak ingin mengubah foto lama.</p>
-                            @error('gambar') <span class="text-red-500 text-[8px] font-bold mt-1 uppercase">{{ $message }}</span> @enderror
+                            @error('foto') <span class="text-red-500 text-[8px] font-bold mt-1 uppercase">{{ $message }}</span> @enderror
                         </div>
                         
-                        {{-- Tampilkan Foto Lama sebagai Pratinjau --}}
-                        <div class="flex-shrink-0 flex-col items-center">
+                        {{-- Preview Foto Saat Ini --}}
+                        <div class="flex-shrink-0 flex flex-col items-center">
                             <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1 text-center">Foto Saat Ini</p>
-                            <div class="w-24 h-24 rounded-2xl border-2 border-dashed border-gray-100 overflow-hidden bg-gray-50 flex items-center justify-center p-2">
-                                @if($buku->gambar)
-                                    <img src="{{ asset('storage/bukus/' . $buku->gambar) }}" alt="Preview" class="w-full h-full object-cover rounded-xl">
+                            <div class="w-32 h-32 border rounded-lg flex items-center justify-center overflow-hidden bg-gray-50 shadow-inner">
+                                {{-- Menggunakan asset() untuk mengakses folder public/storage/bukus --}}
+                                @if($buku->foto)
+                                    <img src="{{ asset('storage/bukus/' . $buku->foto) }}" alt="Foto Buku" class="object-cover w-full h-full">
                                 @else
-                                    <span class="text-[8px] font-black text-gray-300 uppercase tracking-widest">No Image</span>
+                                    <div class="flex flex-col items-center p-2 text-center">
+                                        <span class="text-[8px] text-gray-400 font-black uppercase">No Image Found</span>
+                                        <span class="text-[7px] text-red-400 break-all">{{ $buku->foto }}</span>
+                                    </div>
                                 @endif
                             </div>
                         </div>
                     </div>
 
-                    {{-- PERBAIKAN 3: Input Deskripsi --}}
+                    {{-- Deskripsi --}}
                     <div class="mt-6 flex flex-col">
                         <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Deskripsi / Spesifikasi (Opsional)</label>
                         <textarea name="deskripsi" rows="3" class="w-full border-gray-200 bg-gray-50/30 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold text-xs p-3 placeholder:opacity-30" placeholder="MASUKKAN DETAIL ALAT...">{{ old('deskripsi', $buku->deskripsi) }}</textarea>
                         @error('deskripsi') <span class="text-red-500 text-[8px] font-bold mt-1 uppercase">{{ $message }}</span> @enderror
                     </div>
 
-                    {{-- Footer Buttons --}}
+                    {{-- Tombol --}}
                     <div class="mt-10 pt-6 border-t border-gray-50 flex justify-end items-center space-x-8">
-                        <a href="{{ route('admin.bukus.index') }}" 
-                            class="text-[9px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors">
-                            Batal
-                        </a>
-                        <button type="submit" 
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 px-8 rounded-xl text-[10px] uppercase tracking-[0.15em] shadow-lg shadow-indigo-100 transition-all active:scale-95">
+                        <a href="{{ route('admin.bukus.index') }}" class="text-[9px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors">Batal</a>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 px-8 rounded-xl text-[10px] uppercase tracking-[0.15em] shadow-lg shadow-indigo-100 transition-all active:scale-95">
                             Simpan Perubahan
                         </button>
                     </div>

@@ -1,5 +1,4 @@
 <x-app-layout>
-    {{-- Header ditiadakan/dikosongkan jika ingin tampilan lebih bersih --}}
     <x-slot name="header">
         <h2 class="font-bold text-sm text-gray-400 uppercase tracking-[0.5em]">
             {{ __('Katalog Digital') }}
@@ -9,14 +8,13 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            {{-- Bagian Judul Utama & Pencarian --}}
+            {{-- Header & Search --}}
             <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                 <div>
                     <h3 class="text-4xl font-black text-gray-900 uppercase tracking-tighter leading-none">Pilih Buku</h3>
                     <p class="text-[10px] text-gray-400 uppercase font-bold tracking-[0.2em] mt-3">Silakan pilih kategori atau cari buku yang ingin dipinjam.</p>
                 </div>
 
-                {{-- Bar Pencarian --}}
                 <div class="w-full md:w-72">
                     <form action="{{ route('peminjam.bukus.index') }}" method="GET" class="relative">
                         <input type="text" name="search" value="{{ request('search') }}" 
@@ -31,7 +29,7 @@
                 </div>
             </div>
 
-            {{-- Navbar Kategori (Tepat di bawah judul) --}}
+            {{-- Tabs Kategori --}}
             <div class="mb-12">
                 <div class="flex items-center space-x-3 overflow-x-auto pb-4 no-scrollbar border-b border-gray-100">
                     <a href="{{ route('peminjam.bukus.index') }}" 
@@ -47,24 +45,35 @@
                 </div>
             </div>
 
-            @if(session('success'))
-                <div class="mb-8 bg-green-500 text-white p-4 rounded-2xl shadow-lg shadow-green-100 flex items-center gap-3">
-                    <span class="text-[10px] font-black uppercase tracking-widest">{{ session('success') }}</span>
-                </div>
-            @endif
-
-            {{-- Grid Katalog --}}
+            {{-- Grid Buku --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
                 @forelse ($bukus as $buku)
                 <div class="bg-white rounded-[3rem] p-5 shadow-sm border border-gray-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 flex flex-col group">
                     
-                    {{-- Cover --}}
-                    <div class="aspect-[3/4] bg-gray-50 rounded-[2.5rem] relative overflow-hidden mb-6 shadow-inner">
-                        @if($buku->gambar)
-                            <img src="{{ asset('storage/bukus/' . $buku->gambar) }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    {{-- Bagian Cover Buku --}}
+                    <div class="aspect-[3/4] bg-gray-50 rounded-[2.5rem] relative overflow-hidden mb-6 shadow-inner flex items-center justify-center">
+                        @php
+                            $imagePath = null;
+                            // PERBAIKAN: Validasi path agar tidak membaca string C:\Users
+                            if($buku->gambar && !str_contains($buku->gambar, 'C:\\')) {
+                                if (file_exists(public_path('storage/bukus/' . $buku->gambar))) {
+                                    $imagePath = asset('storage/bukus/' . $buku->gambar);
+                                } else {
+                                    // Logika cadangan untuk file dengan prefix angka unik
+                                    $files = glob(public_path('storage/bukus/*_' . $buku->gambar));
+                                    if (count($files) > 0) {
+                                        $imagePath = asset('storage/bukus/' . basename($files[0]));
+                                    }
+                                }
+                            }
+                        @endphp
+
+                        @if($imagePath)
+                            <img src="{{ $imagePath }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         @else
-                            <div class="w-full h-full flex items-center justify-center bg-gray-100">
-                                <span class="text-[9px] font-black text-gray-300 uppercase tracking-widest">No Cover</span>
+                            <div class="text-center p-4">
+                                <span class="text-[8px] font-black text-gray-300 uppercase block tracking-widest italic">No Image File</span>
+                                <span class="text-[6px] text-gray-400 mt-2 block break-all">Ref: {{ basename($buku->gambar) }}</span>
                             </div>
                         @endif
                         
@@ -75,20 +84,21 @@
                         </div>
                     </div>
 
-                    {{-- Info Buku --}}
+                    {{-- Informasi Buku --}}
                     <div class="px-2 flex-grow">
                         <h4 class="text-lg font-black text-gray-900 uppercase tracking-tighter leading-tight mb-2 truncate">
                             {{ $buku->nama_buku }}
                         </h4>
                         <p class="text-[9px] text-gray-400 font-bold leading-relaxed mb-6 line-clamp-2 uppercase italic">
-                            {{ $buku->deskripsi ?? 'Detail buku ini dapat dilihat saat pengajuan peminjaman.' }}
+                            {{ $buku->deskripsi ?? 'Detail buku dapat dilihat saat pengajuan peminjaman.' }}
                         </p>
                     </div>
 
-                    {{-- Tombol --}}
+                    {{-- Tombol Aksi --}}
                     <div class="mt-auto">
                         @if($buku->stok > 0)
-                            <a href="{{ route('peminjam.peminjaman.create', ['buku_id' => $buku->id]) }}" 
+                            {{-- PERBAIKAN: Mengubah rute ke bukus.create (PLURAL) sesuai web.php --}}
+                            <a href="{{ route('peminjam.bukus.create', ['buku_id' => $buku->id]) }}" 
                             class="block w-full bg-gray-900 hover:bg-indigo-600 text-white text-center font-black text-[9px] py-4 rounded-2xl transition-all duration-300 uppercase tracking-[0.2em] shadow-lg">
                                 Pinjam Sekarang
                             </a>
@@ -101,7 +111,7 @@
                 </div>
                 @empty
                 <div class="col-span-full py-20 text-center">
-                    <p class="text-gray-400 font-black uppercase text-xs tracking-widest italic opacity-50">Belum ada koleksi untuk kategori ini.</p>
+                    <p class="text-gray-400 font-black uppercase text-xs tracking-widest italic opacity-50">Belum ada koleksi tersedia.</p>
                 </div>
                 @endforelse
             </div>

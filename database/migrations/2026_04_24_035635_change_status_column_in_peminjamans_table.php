@@ -9,20 +9,19 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('kategoris', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama_kategori');
-            $table->timestamps();
-        });
-    }
+    public function up(): void {
+    Schema::table('peminjamans', function (Blueprint $table) {
+        $table->string('status')->default('pending')->change();
+    });
+}
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('kategoris');
+        Schema::table('peminjamans', function (Blueprint $table) {
+            //
+        });
     }
 };

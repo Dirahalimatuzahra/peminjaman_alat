@@ -9,29 +9,18 @@ class Buku extends Model
 {
     use HasFactory;
 
+    // Tambahkan baris ini untuk mengizinkan input data
     protected $fillable = [
-        'kategori_id', // Tambahkan ini agar bisa menyimpan relasi kategori
-        'nama_buku', 
+        'nama_buku', // WAJIB ADA
+        'judul', 
+        'kategori_id', 
         'stok', 
         'deskripsi', 
-        'gambar', 
+        'gambar'
     ];
 
-    /**
-     * Relasi ke model Kategori.
-     * Satu buku termasuk dalam satu kategori (Many to One).
-     */
     public function kategori()
     {
-        return $this->belongsTo(Kategori::class, 'kategori_id');
-    }
-
-    /**
-     * Relasi ke model Peminjaman.
-     * Satu buku bisa dipinjam berkali-kali.
-     */
-    public function peminjamans()
-    {
-        return $this->hasMany(Peminjaman::class);
+        return $this->belongsTo(Kategori::class);
     }
 }

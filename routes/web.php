@@ -9,9 +9,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BukuController as AdminBukuController;
+use App\Http\Controllers\Admin\KategoriController as AdminKategoriController;
 use App\Http\Controllers\Admin\PeminjamanController as AdminPeminjaman; 
 use App\Http\Controllers\Admin\PengembalianController;
-use App\Http\Controllers\Admin\AdminProfileController as AdminProfileController;
 
 // --- IMPORT CONTROLLER USER (PEMINJAM) ---
 use App\Http\Controllers\Peminjam\DashboardController as UserDashboard;
@@ -23,8 +23,7 @@ Route::get('/', function () {
 });
 
 /**
- * REDIRECT DASHBOARD UTAMA
- * Menangani pengalihan otomatis berdasarkan role setelah login.
+ * REDIRECT DASHBOARD UTAMA (Role Based)
  */
 Route::get('/dashboard', function () {
     $role = auth()->user()->role;
@@ -38,34 +37,38 @@ Route::get('/dashboard', function () {
 
 /**
  * ROUTE GROUP ADMIN
- * Menangani semua tugas Admin: Kelola Anggota, CRUD Buku, Transaksi, dan Profil.
  */
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
     
-    // Kelola & Cari Pengguna (Gunakan resource atau route manual untuk pencarian)
+    // Kelola Pengguna
+    // PENTING: Route search harus di atas resource agar tidak dianggap sebagai ID
     Route::get('/users/search', [UserController::class, 'search'])->name('users.search');
-    Route::resource('users', UserController::class);
+    Route::resource('users', UserController::class); 
     
-    // Resource lainnya tetap sama
+    // Kelola Buku & Kategori
     Route::resource('bukus', AdminBukuController::class);
+    Route::resource('kategori', AdminKategoriController::class);
+    
+    // Kelola Peminjaman & Pengembalian
+    Route::patch('/pengembalian/{id}', [AdminPeminjaman::class, 'kembalikan'])->name('pengembalian.store');
     Route::resource('peminjaman', AdminPeminjaman::class); 
 });
 
 /**
  * ROUTE GROUP USER (PEMINJAM)
- * Menangani tugas User: Daftar, Login, Peminjaman, dan Pencarian Buku.
  */
 Route::middleware(['auth', 'role:peminjam'])->prefix('user')->name('peminjam.')->group(function () {
     Route::get('/dashboard', [UserDashboard::class, 'index'])->name('dashboard');
-    Route::get('/bukus', [UserBukuController::class, 'index'])->name('bukus.index');
+    
+    // Daftar Buku & Transaksi Peminjaman
+    Route::resource('bukus', UserBukuController::class);
     Route::resource('peminjaman', UserPeminjamanController::class);
 });
 
 /**
- * DEFAULT PROFILE ROUTES (Laravel Breeze)
- * Tetap dipertahankan untuk kebutuhan profil dasar atau jika role lain membutuhkannya.
+ * DEFAULT PROFILE ROUTES
  */
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

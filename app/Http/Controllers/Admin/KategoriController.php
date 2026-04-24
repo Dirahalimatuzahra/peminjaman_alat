@@ -13,10 +13,9 @@ class KategoriController extends Controller
      */
     public function index()
     {
-        $kategoris = Kategori::all();
+        $kategoris = \App\Models\Kategori::all();
         return view('admin.kategoris.index', compact('kategoris'));
     }
-
     /**
      * MENAMBAHKAN FUNGSI INI AGAR TIDAK ERROR LAGI
      * Menampilkan halaman form tambah kategori
@@ -31,13 +30,9 @@ class KategoriController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_kategori' => 'required|string|max:255',
-        ]);
-
-        Kategori::create($request->all());
-
-        return redirect()->route('admin.kategoris.index')->with('success', 'Kategori berhasil ditambahkan!');
+        $request->validate(['nama_kategori' => 'required|unique:kategoris']);
+        \App\Models\Kategori::create($request->all());
+        return back()->with('success', 'Kategori berhasil ditambahkan.');
     }
 
     /**
@@ -69,8 +64,7 @@ class KategoriController extends Controller
      */
     public function destroy($id)
     {
-        $kategori = Kategori::findOrFail($id);
-        $kategori->delete();
-        return redirect()->route('admin.kategoris.index')->with('success', 'Kategori berhasil dihapus!');
+        \App\Models\Kategori::findOrFail($id)->delete();
+        return back()->with('success', 'Kategori berhasil dihapus.');
     }
 }

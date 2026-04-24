@@ -9,76 +9,21 @@ use Carbon\Carbon;
 
 class PengembalianController extends Controller
 {
-    /**
-     * Menampilkan daftar peminjaman yang siap dikembalikan.
-     */
-    public function index()
+    public function store(Request $request, $id)
     {
-        // Hanya menampilkan buku yang statusnya masih 'dipinjam'
-        $pengembalians = Peminjaman::with(['user', 'buku'])
-            ->where('status', 'dipinjam')
-            ->latest()
-            ->get();
+        $peminjaman = Peminjaman::with('buku')->findOrFail($id);
 
-        return view('admin.pengembalians.index', compact('pengembalians'));
-    }
-
-    /**
-     * Fungsi untuk konfirmasi pengembalian buku secara cepat.
-     */
-    public function konfirmasi(Request $request)
-    {
-        // Validasi input peminjaman_id agar tidak error
-        $request->validate([
-            'peminjaman_id' => 'required|exists:peminjamans,id',
-        ]);
-
-        $peminjaman = Peminjaman::findOrFail($request->peminjaman_id);
-
+        // Update status jadi dikembalikan
         $peminjaman->update([
-            'tanggal_kembali' => Carbon::now(),
-            'status' => 'kembali'
+            'status' => 'dikembalikan',
+            'tanggal_kembali' => now()
         ]);
 
-        // Mengembalikan stok buku secara otomatis
-        $peminjaman->buku->increment('stok');
+        // TAMBAH STOK KEMBALI
+        if ($peminjaman->buku) {
+            $peminjaman->buku->increment('stok', $peminjaman->jumlah);
+        }
 
-        return redirect()->route('admin.pengembalians.index')
-            ->with('success', 'Buku telah berhasil dikembalikan!');
-    }
-
-    /**
-     * Menampilkan form edit data pengembalian.
-     */
-    public function edit(string $id)
-    {
-        $pengembalian = Peminjaman::findOrFail($id);
-        return view('admin.pengembalians.edit', compact('pengembalian'));
-    }
-
-    /**
-     * Memperbarui data pengembalian secara manual.
-     */
-    public function update(Request $request, string $id)
-    {
-        $peminjaman = Peminjaman::findOrFail($id);
-        
-        // Gunakan update dengan aman
-        $peminjaman->update($request->all());
-
-        return redirect()->route('admin.pengembalians.index')
-            ->with('success', 'Data berhasil diperbarui!');
-    }
-
-    /**
-     * Menghapus data riwayat pengembalian.
-     */
-    public function destroy(string $id)
-    {
-        $peminjaman = Peminjaman::findOrFail($id);
-        $peminjaman->delete();
-
-        return redirect()->route('admin.pengembalians.index')
-            ->with('success', 'Data berhasil dihapus!');
+        return back()->with('success', 'Buku telah diterima kembali dan stok bertambah.');
     }
 }
